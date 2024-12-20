@@ -31,9 +31,10 @@ class HomeSetupLocator {
   }
 
   void _cubit(GetIt instance) {
-    instance.registerFactory<ProductStore>(
+    instance.registerLazySingleton<ProductStore>(
       () => ProductStore(
         getProductsUsecase: instance.get<GetProductsUsecase>(),
+        appStorage: instance.get<AppStorage>(),
       ),
     );
   }

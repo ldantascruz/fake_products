@@ -22,17 +22,4 @@ class HomeDatasourceImpl implements HomeDatasource {
       throw DioException(requestOptions: e.requestOptions, response: e.response);
     }
   }
-
-  @override
-  Future<dynamic> getProductById({required int productId}) async {
-    String url = '${AppEndpoints.baseUrl}${AppEndpoints.products}/$productId';
-
-    try {
-      final response = await _httpClient.get(url);
-
-      return response.data;
-    } on DioException catch (e) {
-      throw DioException(requestOptions: e.requestOptions, response: e.response);
-    }
-  }
 }

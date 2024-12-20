@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/_core.dart';
 import '../../../../entity/_entity.dart';
 import '../../_home.dart';
 
@@ -13,8 +12,6 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    store.fetchProducts();
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(left: 20, right: 20, top: 60),
@@ -42,17 +39,17 @@ class HomePage extends StatelessWidget {
                   color: const Color(0xFFF0F1F2),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Row(
-                  spacing: 8,
+                child: Row(
                   children: [
-                    Icon(Icons.search, color: Color(0xFF37474F)),
+                    const Icon(Icons.search, color: Color(0xFF37474F)),
                     Expanded(
                       child: TextField(
-                        decoration: InputDecoration(
+                        onChanged: store.setSearchQuery,
+                        decoration: const InputDecoration(
                           hintText: 'Search Anything',
                           border: InputBorder.none,
                         ),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Color(0xFF37474F),
                         ),
@@ -81,69 +78,79 @@ class HomePage extends StatelessWidget {
                       ),
                     );
                   }
+
+                  final filteredProducts = store.filteredProducts;
+
                   return ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     separatorBuilder: (_, __) => const Divider(),
                     padding: const EdgeInsets.only(bottom: 40),
-                    itemCount: store.products.length,
+                    itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
-                      final ProductEntity product = store.products[index];
+                      final ProductEntity product = filteredProducts[index];
 
-                      return InkWell(
-                        onTap: () => context.push(HomeRoutesEnum.productDetail.fullPath, extra: product),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 22),
-                          child: Row(
-                            children: [
-                              Image.network(
-                                product.image,
-                                width: 100,
-                                fit: BoxFit.fitHeight,
-                              ),
-                              const SizedBox(width: 18),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      product.title,
-                                      style: Theme.of(context).primaryTextTheme.bodyMedium,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      return Observer(
+                        builder: (_) {
+                          return InkWell(
+                            onTap: () => context.push(HomeRoutesEnum.productDetail.fullPath, extra: product),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 22),
+                              child: Row(
+                                children: [
+                                  Image.network(
+                                    product.image,
+                                    width: 100,
+                                    fit: BoxFit.fitHeight,
+                                  ),
+                                  const SizedBox(width: 18),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        SizedBox(
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.star, color: Colors.yellow),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                '${product.rating.rate} (${product.rating.count} reviews)',
-                                                style: Theme.of(context).primaryTextTheme.labelMedium,
-                                              ),
-                                            ],
-                                          ),
+                                        Text(
+                                          product.title,
+                                          style: Theme.of(context).primaryTextTheme.bodyMedium,
                                         ),
-                                        const Icon(
-                                          Icons.favorite_outline_outlined,
-                                          color: AppColors.primaryLighterColor,
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            SizedBox(
+                                              child: Row(
+                                                children: [
+                                                  const Icon(Icons.star, color: Colors.yellow),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    '${product.rating.rate} (${product.rating.count} reviews)',
+                                                    style: Theme.of(context).primaryTextTheme.labelMedium,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                store.isFavorite(product) ? Icons.favorite : Icons.favorite_border,
+                                                color: store.isFavorite(product) ? Colors.red : Colors.grey,
+                                              ),
+                                              onPressed: () => store.toggleFavorite(product),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          '\$${product.price.toStringAsFixed(2)}',
+                                          style: Theme.of(context).primaryTextTheme.bodyLarge,
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '\$${product.price.toStringAsFixed(2)}',
-                                      style: Theme.of(context).primaryTextTheme.bodyLarge,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       );
                     },
                   );

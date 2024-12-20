@@ -26,15 +26,4 @@ class HomeRepositoryImpl implements HomeRepository {
       rethrow;
     }
   }
-
-  @override
-  Future<ProductEntity> getProductById({required int productId}) async {
-    try {
-      final resultDatasource = await _datasource.getProductById(productId: productId);
-
-      return ProductEntity.fromMap(resultDatasource);
-    } catch (e) {
-      rethrow;
-    }
-  }
 }

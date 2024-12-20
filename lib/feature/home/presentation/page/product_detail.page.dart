@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/_core.dart';
@@ -7,8 +8,9 @@ import '../../_home.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final ProductEntity product;
+  final ProductStore store;
 
-  const ProductDetailPage({super.key, required this.product});
+  const ProductDetailPage({super.key, required this.product, required this.store});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +36,18 @@ class ProductDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  InkWell(
-                    onTap: () => context.push(HomeRoutesEnum.favorites.fullPath),
-                    child: const Icon(Icons.favorite_outline_outlined),
+                  Observer(
+                    builder: (_) {
+                      final isFavorite = store.isFavorite(product);
+                      return IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : Colors.grey,
+                          size: 32,
+                        ),
+                        onPressed: () => store.toggleFavorite(product),
+                      );
+                    },
                   ),
                 ],
               ),

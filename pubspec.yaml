@@ -47,3 +47,5 @@ flutter:
          weight: 600
        - asset: assets/fonts/Poppins-Bold.ttf
          weight: 700
+
+# dart run build_runner build --delete-conflicting-outputs

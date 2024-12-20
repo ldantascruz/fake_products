@@ -33,6 +33,9 @@ class HomeRouter {
       path: HomeRoutesEnum.home.fullPath,
       builder: (context, state) {
         final store = GetIt.I.get<ProductStore>();
+        if (!store.hasFetchedProducts) {
+          store.fetchProducts();
+        }
         return HomePage(store: store);
       },
     ),
@@ -40,16 +43,18 @@ class HomeRouter {
       name: HomeRoutesEnum.productDetail.routeName,
       path: HomeRoutesEnum.productDetail.fullPath,
       builder: (context, state) {
+        final store = GetIt.I.get<ProductStore>();
         final product = state.extra as ProductEntity;
 
-        return ProductDetailPage(product: product);
+        return ProductDetailPage(product: product, store: store);
       },
     ),
     GoRoute(
       name: HomeRoutesEnum.favorites.routeName,
       path: HomeRoutesEnum.favorites.fullPath,
       builder: (context, state) {
-        return const FavoritesPage();
+        final store = GetIt.I.get<ProductStore>();
+        return FavoritesPage(store: store);
       },
     ),
   ];
