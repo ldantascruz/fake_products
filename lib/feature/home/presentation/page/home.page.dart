@@ -23,6 +23,7 @@ class HomePage extends StatelessWidget {
                 children: [
                   Text(
                     'Products',
+                    key: const Key('products_title'),
                     style: Theme.of(context).primaryTextTheme.headlineLarge,
                   ),
                   InkWell(

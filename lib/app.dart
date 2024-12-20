@@ -60,6 +60,7 @@ class App extends StatelessWidget {
         ),
         dividerColor: AppColors.dividerColor,
       ),
+      themeMode: ThemeMode.light,
     );
   }
 }
