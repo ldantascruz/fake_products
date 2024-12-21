@@ -1,4 +1,3 @@
-import 'package:fake_products/core/_core.dart';
 import 'package:fake_products/entity/_entity.dart';
 import 'package:fake_products/feature/home/_home.dart';
 import 'package:flutter/material.dart';
@@ -101,38 +100,30 @@ void main() {
 
   group('HomePage Widget Tests', () {
     testWidgets('shows loading indicator when isLoading is true', (WidgetTester tester) async {
-      // Arrange
       when(() => mockStore.isLoading).thenReturn(true);
 
-      // Act
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pump();
 
-      // Assert
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
     testWidgets('renders HomePage correctly', (WidgetTester tester) async {
-      // Arrange
       when(() => mockStore.isLoading).thenReturn(true);
       when(() => mockStore.errorMessage).thenReturn(null);
 
-      // Act
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pump();
 
-      // Assert
       expect(find.byKey(const Key('products_title')), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.byIcon(Icons.favorite_outline_outlined), findsOneWidget);
     });
 
     testWidgets('renders HomePage with loaded products', (WidgetTester tester) async {
-      // Arrange
       when(() => mockStore.isLoading).thenReturn(false);
       when(() => mockStore.errorMessage).thenReturn(null);
 
-      // Define produtos diretamente
       final simulatedProducts = ObservableList.of([
         const ProductEntity(
           id: 2,
@@ -145,36 +136,20 @@ void main() {
         ),
       ]);
 
-      // Configura o retorno diretamente
       mockStore.filteredProducts.clear();
       mockStore.filteredProducts.addAll(simulatedProducts);
 
-      // Act
-      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
-      await tester.pump(); // Aguarda a inicialização da UI.
-
-      // Assert
-      expect(find.byKey(const Key('products_list')), findsOneWidget); // Lista encontrada.
-      expect(find.text('Loaded Product'), findsOneWidget); // Produto simulado encontrado.
-    });
-
-    testWidgets('displays list of filtered products', (WidgetTester tester) async {
-      final router = GoRouter(
-        initialLocation: '/home/home',
-        routes: [
-          GoRoute(
-            name: HomeRoutesEnum.home.routeName,
-            path: '/home/home',
-            builder: (context, state) => HomePage(store: mockStore),
-          ),
-        ],
-      );
-
-      // Act
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await tester.pump();
 
-      // Assert
+      expect(find.byKey(const Key('products_list')), findsOneWidget);
+      expect(find.text('Loaded Product'), findsOneWidget);
+    });
+
+    testWidgets('displays list of filtered products', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pump();
+
       expect(find.text('Product 1'), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
     });

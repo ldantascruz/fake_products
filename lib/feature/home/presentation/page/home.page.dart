@@ -103,34 +103,43 @@ class HomePage extends StatelessWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 22),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Limita a largura da imagem
                                   Image.network(
                                     product.image,
                                     width: 100,
-                                    fit: BoxFit.fitHeight,
+                                    height: 100, // Limita a altura também, caso necessário
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported),
                                   ),
-                                  const SizedBox(width: 18),
+                                  const SizedBox(width: 12), // Reduz o espaçamento horizontal
                                   Expanded(
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           product.title,
                                           style: Theme.of(context).primaryTextTheme.bodyMedium,
+                                          maxLines: 1, // Limita o texto a uma linha
+                                          overflow: TextOverflow.ellipsis, // Adiciona elipses para texto longo
                                         ),
                                         const SizedBox(height: 8),
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            SizedBox(
+                                            Flexible(
                                               child: Row(
                                                 children: [
                                                   const Icon(Icons.star, color: Colors.yellow),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    '${product.rating.rate} (${product.rating.count} reviews)',
-                                                    style: Theme.of(context).primaryTextTheme.labelMedium,
+                                                  const SizedBox(width: 4), // Reduz espaçamento interno
+                                                  Flexible(
+                                                    child: Text(
+                                                      '${product.rating.rate} (${product.rating.count} reviews)',
+                                                      style: Theme.of(context).primaryTextTheme.labelMedium,
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
                                                   ),
                                                 ],
                                               ),
