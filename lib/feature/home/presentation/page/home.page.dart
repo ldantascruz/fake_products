@@ -27,6 +27,7 @@ class HomePage extends StatelessWidget {
                     style: Theme.of(context).primaryTextTheme.headlineLarge,
                   ),
                   InkWell(
+                    key: const Key('favorites_button'),
                     onTap: () => context.push(HomeRoutesEnum.favorites.fullPath),
                     child: const Icon(Icons.favorite_outline_outlined),
                   ),
@@ -45,6 +46,7 @@ class HomePage extends StatelessWidget {
                     const Icon(Icons.search, color: Color(0xFF37474F)),
                     Expanded(
                       child: TextField(
+                        key: const Key('search_field'),
                         onChanged: store.setSearchQuery,
                         decoration: const InputDecoration(
                           hintText: 'Search Anything',
@@ -64,7 +66,7 @@ class HomePage extends StatelessWidget {
                   if (store.isLoading) {
                     return const SizedBox(
                       height: 500,
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: CircularProgressIndicator(key: Key('loading_spinner'))),
                     );
                   }
 
@@ -74,6 +76,7 @@ class HomePage extends StatelessWidget {
                       child: Center(
                         child: Text(
                           'Erro: ${store.errorMessage!}',
+                          key: const Key('error_message'),
                           style: const TextStyle(color: Colors.red),
                         ),
                       ),
@@ -83,6 +86,7 @@ class HomePage extends StatelessWidget {
                   final filteredProducts = store.filteredProducts;
 
                   return ListView.separated(
+                    key: const Key('products_list'),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     separatorBuilder: (_, __) => const Divider(),
@@ -94,6 +98,7 @@ class HomePage extends StatelessWidget {
                       return Observer(
                         builder: (_) {
                           return InkWell(
+                            key: Key('product_${product.id}'),
                             onTap: () => context.push(HomeRoutesEnum.productDetail.fullPath, extra: product),
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 22),

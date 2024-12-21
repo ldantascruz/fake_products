@@ -35,8 +35,20 @@ class MockProductStore extends Mock implements ProductStore {
 
 void main() {
   late MockProductStore mockStore;
+  late GoRouter router;
 
   setUpAll(() {
+    router = GoRouter(
+      initialLocation: '/home/home',
+      routes: [
+        GoRoute(
+          name: HomeRoutesEnum.home.routeName,
+          path: '/home/home',
+          builder: (context, state) => HomePage(store: mockStore),
+        ),
+      ],
+    );
+
     registerFallbackValue(const ProductEntity(
       id: 0,
       title: 'Fallback Product',
@@ -48,26 +60,27 @@ void main() {
     ));
   });
 
-  setUp(() {
-    mockStore = MockProductStore();
-    GetIt.I.registerSingleton<ProductStore>(mockStore);
+  setUp(
+    () {
+      mockStore = MockProductStore();
+      GetIt.I.registerSingleton<ProductStore>(mockStore);
 
-    // Configure `isLoading` e `errorMessage` usando `when`
-    when(() => mockStore.isLoading).thenReturn(false);
-    when(() => mockStore.errorMessage).thenReturn(null);
+      // Configure `isLoading` e `errorMessage` usando `when`
+      when(() => mockStore.isLoading).thenReturn(false);
+      when(() => mockStore.errorMessage).thenReturn(null);
 
-    // Adicione produtos diretamente
-    mockStore.addProduct(const ProductEntity(
-      id: 1,
-      title: 'Product 1',
-      price: 19.99,
-      description: 'Description 1',
-      category: 'Category 1',
-      image: 'http://test.com/product1.png',
-      rating: RatingEntity(count: 10, rate: 4.5),
-    ));
+      // Adicione produtos diretamente
+      mockStore.addProduct(const ProductEntity(
+        id: 1,
+        title: 'Product 1',
+        price: 19.99,
+        description: 'Description 1',
+        category: 'Category 1',
+        image: 'http://test.com/product1.png',
+        rating: RatingEntity(count: 10, rate: 4.5),
+      ));
 
-    mockStore.setFavorite(
+      mockStore.setFavorite(
         const ProductEntity(
           id: 1,
           title: 'Product 1',
@@ -77,61 +90,19 @@ void main() {
           image: 'http://test.com/product1.png',
           rating: RatingEntity(count: 10, rate: 4.5),
         ),
-        true);
-  });
+        true,
+      );
+    },
+  );
 
   tearDown(() {
     GetIt.I.reset();
   });
 
   group('HomePage Widget Tests', () {
-    testWidgets('renders HomePage correctly', (WidgetTester tester) async {
-      // Arrange
-      final router = GoRouter(
-        initialLocation: '/home/home',
-        routes: [
-          GoRoute(
-            name: HomeRoutesEnum.home.routeName,
-            path: '/home/home',
-            builder: (context, state) => HomePage(store: mockStore),
-          ),
-        ],
-      );
-
-      // Act
-      await tester.pumpWidget(
-        MaterialApp.router(
-          routerConfig: router,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: AppColors.primaryColor,
-              surface: AppColors.backgroundColor,
-            ),
-          ),
-        ),
-      );
-
-      // Assert
-      expect(find.byKey(const Key('products_title')), findsOneWidget);
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.byIcon(Icons.favorite_outline_outlined), findsOneWidget);
-    });
-
     testWidgets('shows loading indicator when isLoading is true', (WidgetTester tester) async {
       // Arrange
       when(() => mockStore.isLoading).thenReturn(true);
-
-      final router = GoRouter(
-        initialLocation: '/home/home',
-        routes: [
-          GoRoute(
-            name: HomeRoutesEnum.home.routeName,
-            path: '/home/home',
-            builder: (context, state) => HomePage(store: mockStore),
-          ),
-        ],
-      );
 
       // Act
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
@@ -139,6 +110,52 @@ void main() {
 
       // Assert
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
+
+    testWidgets('renders HomePage correctly', (WidgetTester tester) async {
+      // Arrange
+      when(() => mockStore.isLoading).thenReturn(true);
+      when(() => mockStore.errorMessage).thenReturn(null);
+
+      // Act
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pump();
+
+      // Assert
+      expect(find.byKey(const Key('products_title')), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_outline_outlined), findsOneWidget);
+    });
+
+    testWidgets('renders HomePage with loaded products', (WidgetTester tester) async {
+      // Arrange
+      when(() => mockStore.isLoading).thenReturn(false);
+      when(() => mockStore.errorMessage).thenReturn(null);
+
+      // Define produtos diretamente
+      final simulatedProducts = ObservableList.of([
+        const ProductEntity(
+          id: 2,
+          title: 'Loaded Product',
+          price: 29.99,
+          description: 'Description Loaded',
+          category: 'Loaded Category',
+          image: 'http://test.com/loadedproduct.png',
+          rating: RatingEntity(count: 20, rate: 4.8),
+        ),
+      ]);
+
+      // Configura o retorno diretamente
+      mockStore.filteredProducts.clear();
+      mockStore.filteredProducts.addAll(simulatedProducts);
+
+      // Act
+      await tester.pumpWidget(MaterialApp.router(routerConfig: router));
+      await tester.pump(); // Aguarda a inicialização da UI.
+
+      // Assert
+      expect(find.byKey(const Key('products_list')), findsOneWidget); // Lista encontrada.
+      expect(find.text('Loaded Product'), findsOneWidget); // Produto simulado encontrado.
     });
 
     testWidgets('displays list of filtered products', (WidgetTester tester) async {
